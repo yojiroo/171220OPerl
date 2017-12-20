@@ -7,7 +7,7 @@ Microsoft Edgeなど、主要なブラウザのほとんどで実装されてい
 
 
 ## 覚えた方がいい用語(主観入ってる)
-Ajax,jQuery,AngularJS,React,Node.js
+Ajax,jQuery,AngularJS,React,Node.js,DOM(document object model)
 解説する時間はないのでここでググって調べるといい。
 
 ## javascriptを使って簡単な物を実装してみよう!
@@ -52,7 +52,8 @@ document.write(hour+"時",+minute+"分"+second+"秒");
 
 ## javascriptで単語帳アプリを実装してみよう！
 
-まずは雛形
+まずは雛形コピペで構いません
+
 ```html
 <!DOCTYPE html>
 <html lang="ja">
@@ -106,6 +107,9 @@ document.write(hour+"時",+minute+"分"+second+"秒");
     background: #00aaff;
     transform: rotateY(180deg);
   }
+  .open {
+    transform: rotateY(180deg);
+  }
   </style>
 </head>
 <body>
@@ -120,6 +124,11 @@ document.write(hour+"時",+minute+"分"+second+"秒");
 
 コードが長くなっていますが、styleタグに囲まれたところがCSSに対応する部分になっていますので実質のhtmlコードの部分は短いです。
 idがcardは単語帳のカードの部分btnはボタン部分に対応しています。
+card-frontはカードの表側
+card-backはカードの裏側になります。
+transform: rotateYという部分がひっくり返りの部分になります。
+.openは後でjsで動かすための物です。
+
 
 ## ボタンを裏返しにしてみよう！
 
@@ -150,8 +159,42 @@ idがcardは単語帳のカードの部分btnはボタン部分に対応して�
 </script>
 
 ```
+use strictは厳密なエラーチェックのための物です。
+詳しくはhttps://qiita.com/miri4ech/items/ffcebaf593f5baa1c112が参考になると思います。
+
+wordsという配列を用意してあげて英語はenのキーを、日本語はjaのキーを使うようにしていきます。
+
+document.getElementById('card');でcard idの要素を取得します
+そしてaddEventListenerをつけることによってcard要素に対してイベントを紐づけることができます。
+今回の場合は
+
+```js
+ card.addEventListener('click', function() {
+    flip();
+  });
+```
+
+となっているのでクリックした時にflip関数が走るというよう動きをします。  
+ちなみにaddEventListener()はInternet Explorer 8以前のIEでは動かないのでご注意を（多分大丈夫ですが）
+このようにdocumentにアクセスするための色々な命令をdomと言います.(覚えてほしい単語の一つです。)
+以下のフリップ関数ですが
+
+```js
+function flip() {
+  card.className = card.className === '' ? 'open' : '';
+}
+```
+
+中身としてはクラス名を変更しているだけです。
+card.className がもし空文字だったら open にし、そうでなかったら空文字に戻すというように書いてあげます。
+三項演算子という物を使っているのでご注意ください。
+
+ここまでできればcardをクリックした時に裏返るはずです。
 
 ## ボタンを押したら次の単語に変わるようにしよう！
+
+次はnextというボタンを押したら次の単語に変化するようにしましょう。
+scriptタグ内に以下のコードを入れてみましょう。
 
 ```js
 var cardFront = document.getElementById('card-front');
@@ -170,11 +213,24 @@ function next() {
 next();
 ```
 
+今回はcardFrontという変数にcard-front idの要素をcardBackという変数にcard-back要素をbtnという変数にbtn要素を入れます。
+先程同様にaddEventListenerでbtnがクリックされた時にnext関数が走るように書きます。
+Math.floorは()内の最大の整数を出します。
+Math.random() * words.lengthはなぜこのような書き方をしているかというとMath.randomは0以上1未満の疑似ランダムな浮動小数点を返す関数です。words.lengthはwordsの大きさを取得しているので5ですね。
+なのでMath.random() * words.lengthは0~0.9999.... * 5という内容になります。それ故に0~4の値を取ることがわかります。
+innerHTMLですがこれは要素の子孫を記述する HTML 構文を設定または取得します。この場合はcardFrontにwordsのenキーに対応するものを、cardBackにはwordsのjaキーに対応するもの設定します。
+
+このようなコードを記述すればカードの値がnextボタンを押すたびにランダムに変わるようになります。
+
+また、最初に開いたときの値を入れたいのでnext()と最後に書いています。
+
+
+
 ## 課題
 
-###次のカードの回答が見えないようにしよう
-現状だと答えの向きのままだと次のカードに行くときに一瞬答えが見えてしまう。答えが見えないようにしたい。
+### 次のカードの回答が見えないようにしよう
+現状だと答えの向きのままだと次のカードに行くときに答えが見えてしまう。答えが見えないようにしたい。
 
 
-###ショートカットキーを追加してみよう
+### ショートカットキーを追加してみよう
 いちいちクリックしなくてはいけないのは面倒だそこでショートカットキーを追加して次のカードへ変更してみたい。
